@@ -22,7 +22,7 @@ func Run(searchTerm string) {
 	for _, feed := range feeds {
 		matcher, exists := matchers[feed.Type]
 		if !exists {
-			matcher = marchers["default"]
+			matcher = matchers["default"]
 		}
 
 		go func(matcher Matcher, feed *Feed) {
@@ -32,10 +32,18 @@ func Run(searchTerm string) {
 	}
 
 	go func() {
-		waitGroup.wait()
+		waitGroup.Wait()
 
 		close(results)
 	}()
 
 	Display(results)
+}
+
+func Register(feedType string, matcher Matcher) {
+	if _, exists := matchers[feedType]; exists {
+		log.Fatalln(feedType, "Matcher already registered")
+	}
+	log.Println("Register", feedType, "matcher")
+	matchers[feedType] = matcher
 }
